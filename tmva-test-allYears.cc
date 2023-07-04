@@ -353,7 +353,7 @@ void tmva_test_dnn(){
 //       dnnOptions += ":Architecture=CPU:CreateMVAPdfs:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=50:NsmoothMVAPdf=10";
 // //      dnnOptions += ":Architecture=GPU:CreateMVAPdfs:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=50:NsmoothMVAPdf=10";
 
-   std::cout<<dnnOptions<<std::endl;
+//   std::cout<<dnnOptions<<std::endl;
    std::cout<<"==== BookMethod ===="<<std::endl;
    factory->BookMethod( loader,  TMVA::Types::kDL, "DNN_CPU",BookTXT.c_str() );
 
