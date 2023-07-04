@@ -81,17 +81,11 @@ double dxcut=-99;
 int    passB0Psi_jpsi=-99;
 
 //
-//  Long64_t CutEve =800000000;
 Long64_t CutEve =1000000;
 double CutEffDATA = 0.036;
 double CutEffMC   = 0.093/2;
-//double CutEffDATA = 0.00060324;
-//double CutEffMC   = 0.00035352;
-//Long64_t CutEve =500000000000000000; 
-//Long64_t CutEve =5000; 
 //
    
-int BDTNumTree = 500;
 double kstTrk1PtD=-99;
 double kstTrk2PtD=-99;
 double kstTrk1EtaD=-99;
@@ -207,7 +201,6 @@ int main (int argc, char** argv) {
         strcmp(argv[1],"2017") == 0 || \
 	strcmp(argv[1],"2018") == 0)){
       year=argv[1];
-//      replaceAll( NameFileModel ,  year_default, year);
       replaceAll( NameFileMCp0  ,  year_default, year);
       replaceAll( NameFileMCp1  ,  year_default, year);
       replaceAll( NameFileDatap0,  year_default, year);
@@ -218,9 +211,6 @@ int main (int argc, char** argv) {
       TMVA::Tools::Instance();
       std::cout<<Form("Setting year=%s",year.c_str())<<std::endl;
       std::cout<<Form("Setting dataset year=%s",datasetYear.c_str())<<std::endl;
-       if (strcmp(argv[1],"2016") != 0){
-	BDTNumTree=1000;
-       }
     }else{
      std::cout<<Form("not recognize year=%s",year.c_str())<<std::endl;
      exit(0);
@@ -242,7 +232,8 @@ int main (int argc, char** argv) {
     tmva_evaluate_dnn(false);
   }
 }
- void tmva_test_dnn(){
+// Here the DNN stuff 
+void tmva_test_dnn(){
   gROOT ->Reset();
   gROOT->SetStyle("Plain");
   ROOT::EnableImplicitMT(num_threads); 
@@ -256,15 +247,6 @@ int main (int argc, char** argv) {
 
 
 
-//   TFile *fModel = new TFile(NameFileModel.c_str(),"READ");
-//   TTree *TreeModel     = (TTree*)fModel->Get("ntuple_DRw");
-//   std::cout<<Form("Open Model File :%s",NameFileModel.c_str())<<std::endl;
-//   int nentriesModel = (int)TreeModel->GetEntries();
-//   std::cout<<Form("Found Model entries= = %d\n",nentriesModel)<<std::endl;
-
-
-//  TH1D* HxMassWn     = new TH1D( "HxMassWn"          , "B^{0} Mass sPlot <S0",100, 5., 5.6);
-  
   TFile *fData = new TFile(NameFileDatap0.c_str(),"READ");
   TTree *TreeData     = (TTree*)fData->Get("ntuple");
   std::cout<<Form("Open Data File :%s",NameFileDatap0.c_str())<<std::endl;
@@ -274,8 +256,6 @@ int main (int argc, char** argv) {
   std::cout<<Form("Open MC File :%s",NameFileMCp0.c_str())<<std::endl;
   TTree *TreeMC     = (TTree*)fMC->Get("ntuple");
   int nentriesMC = (int)TreeMC->GetEntries();
-//  TreeMC->AddFriend(TreeModel);
-//  TreeMC->AddFriend("ntuple_DRw",NameFileModel.c_str());
   std::cout<<Form("Found MC entries= = %d\n",nentriesMC)<<std::endl;
   DIR* dir = opendir(datasetYear.c_str());
   
@@ -285,59 +265,33 @@ int main (int argc, char** argv) {
   } 
   auto outputFile = TFile::Open(Form("%s/%s",datasetYear.c_str(),OutputFileName.c_str()), "RECREATE");
 
-//  TMVA::Factory factory("TMVAClassification", outputFile,"!V:ROC:!Silent:Color:!DrawProgressBar:AnalysisType=Classification" ); 
-//  TMVA::Factory factory =  TMVA::Factory( "TMVAClassification", outputFile,"!V:!Silent:Color:DrawProgressBar:Transformations=None:AnalysisType=multiclass" );
-//TMVA::Factory factory =  TMVA::Factory( "TMVAClassification", outputFile,"!V:!Silent:Color:DrawProgressBar:Transformations=I;P;G:AnalysisType=multiclass" );
-
-//  TMVA::Factory factory =  TMVA::Factory( "TMVAClassification", outputFile,"!V:!Silent:Color:DrawProgressBar:Transformations=None:AnalysisType=Auto" );
-  TMVA::Factory *factory =  new TMVA::Factory( "TMVAClassification", outputFile,"V:!Silent:Color:DrawProgressBar:Transformations=None:AnalysisType=Auto");
-//  TMVA::Factory factory =  TMVA::Factory( "TMVAClassification", outputFile,"!V:!Silent:Color:DrawProgressBar:Transformations=None:AnalysisType=Auto");
-//  TMVA::Factory factory =  TMVA::Factory( "TMVAClassification", outputFile,"!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Auto");
-
-//  TMVA::Factory factory =  TMVA::Factory( "TMVAClassification", outputFile,"!V:!Silent:Color:DrawProgressBar:Transformations=None:AnalysisType=multiclass" );
-//    TMVA::Factory factory =  TMVA::Factory( "TMVAClassification", outputFile,"!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=multiclass" );
-//  TMVA::Factory factory =  TMVA::Factory( "TMVAMulticlass", outputFile,"!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=multiclass" );
-//  TMVA::Factory factory("TMVAClassification", outputFile,"!V:ROC:!Silent:Color:!DrawProgressBar:AnalysisType=Classification" ); 
+  TMVA::Factory *factory    =  new TMVA::Factory( "TMVAClassification", outputFile,"V:!Silent:Color:DrawProgressBar:Transformations=None:AnalysisType=Auto");
   TMVA::DataLoader * loader = new TMVA::DataLoader(datasetYear.c_str());
-//  TMVA::DataLoader * loader = new TMVA::DataLoader(Form("dataset");
-//global event weights per tree (see below for setting event-wise weights)
   Double_t signalWeight     = 1.0;
   Double_t backgroundWeight = 1.0;
   
-double mc_sigma = 0.0400;
-double mc_mass  = 5.27783;   
-// You can add an arbitrary number of signal or background trees
-Long64_t CutEveMC=(Long64_t)CutEve/CutEffMC;
-Long64_t CutEveDATA=(Long64_t)CutEve/CutEffDATA;
-std::cout<<Form("mycuteveMC   eventN<%lld",CutEveMC) <<std::endl; 
-std::cout<<Form("mycuteveDATA eventN<%lld",CutEveDATA) <<std::endl; 
-TCut mycuteveMC   = Form("eventN<%lld",CutEveMC); 
-TCut mycuteveDATA = Form("eventN<%lld",CutEveDATA);
+  double mc_sigma = 0.0400;
+  double mc_mass  = 5.27783;
+  // You can add an arbitrary number of signal or background trees
+  Long64_t CutEveMC=(Long64_t)CutEve/CutEffMC;
+  Long64_t CutEveDATA=(Long64_t)CutEve/CutEffDATA;
+  std::cout<<Form("mycuteveMC	eventN<%lld",CutEveMC) <<std::endl;
+  std::cout<<Form("mycuteveDATA eventN<%lld",CutEveDATA) <<std::endl;
+  TCut mycuteveMC   = Form("eventN<%lld",CutEveMC);
+  TCut mycuteveDATA = Form("eventN<%lld",CutEveDATA);
 
-Cut_sig_mass	 = Form("(tagged_mass > %f - 2.5*%f) && (tagged_mass < %f + 2.5*%f)",mc_mass,mc_sigma,mc_mass,mc_sigma);
+  Cut_sig_mass     = Form("(tagged_mass > %f - 2.5*%f) && (tagged_mass < %f + 2.5*%f)",mc_mass,mc_sigma,mc_mass,mc_sigma);
 
-Cut_ct  	 = "( ( (tagB0==1) && (genSignal==1)) || ( (tagB0==0) && (genSignal==2) ) )";
+  Cut_ct	   = "( ( (tagB0==1) && (genSignal==1)) || ( (tagB0==0) && (genSignal==2) ) )";
 
-Cut_bkg_mass	 = Form("( ( (tagged_mass > %f-7.*%f ) && (tagged_mass < %f-3.*%f ) ) || ( (tagged_mass > %f+3.*%f ) && (tagged_mass < %f+7*%f ) ) )",mc_mass,mc_sigma,mc_mass,mc_sigma,mc_mass,mc_sigma,mc_mass,mc_sigma );
+  Cut_bkg_mass     = Form("( ( (tagged_mass > %f-7.*%f ) && (tagged_mass < %f-3.*%f ) ) || ( (tagged_mass > %f+3.*%f ) && (tagged_mass < %f+7*%f ) ) )",mc_mass,mc_sigma,mc_mass,mc_sigma,mc_mass,mc_sigma,mc_mass,mc_sigma );
 
-Cut_truth_match  = "( (truthMatchMum==1) && (truthMatchMup ==1) && (truthMatchTrkm==1) && (truthMatchTrkp==1) )";
+  Cut_truth_match  = "( (truthMatchMum==1) && (truthMatchMup ==1) && (truthMatchTrkm==1) && (truthMatchTrkp==1) )";
 
-mycuts0 	 = Cut_sig_mass  && Cut_truth_match &&  Cut_ct && "trig == 0 && (mumuMass < 2.702)";
+  mycuts0	   = Cut_sig_mass  && Cut_truth_match &&  Cut_ct && "trig == 0 && (mumuMass < 2.702)";
 
-mycutb0 	 = Cut_bkg_mass &&  "(mumuMass < 2.702)";
+  mycutb0	   = Cut_bkg_mass &&  "(mumuMass < 2.702)";
 
-//   TCut Jpsi_Cut="(mumuMass*mumuMass<8.68  || mumuMass*mumuMass > 10.09)";
-//   TCut Psi2SCut="(mumuMass*mumuMass<12.86 || mumuMass*mumuMass > 14.18)";
-// 
-//   TCut PreCut = "(tagged_mass > 5.0 && tagged_mass < 5.6)"&&Jpsi_Cut&&Psi2SCut; 
-//   TCut SBCut  = "(tagged_mass > 5.0 && tagged_mass < 5.1)||(tagged_mass > 5.44 && tagged_mass < 5.6)"; 
-// //   TCut mycuts0 = mycuteveMC  &&PreCut&&"int(eventN%2)==0&&(trig==1) && (truthMatchMum==1) && (truthMatchMup==1) && (truthMatchTrkm==1) && (truthMatchTrkp==1)";
-// //   TCut mycutb0 = mycuteveDATA&&PreCut&&"int(eventN)%2==0"&&SBCut; // for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
-// //  TCut mycuts0 = PreCut&&"int(eventN)%2==0";
-//   TCut mycuts0 = mycuteveMC  &&PreCut&&"(int(trig)==1) && (int(truthMatchMum)==1) && (int(truthMatchMup)==1) && (int(truthMatchTrkm)==1) && (int(truthMatchTrkp)==1)";
-//   TCut mycutb0 = mycuteveDATA&&PreCut&&SBCut; // for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
-//   TCut mycuts0 = mycuteveMC  &&PreCut&&"int(eventN)%2==0&&(int(trig)==1) && (int(truthMatchMum)==1) && (int(truthMatchMup)==1) && (int(truthMatchTrkm)==1) && (int(truthMatchTrkp)==1)";
-//   TCut mycutb0 = mycuteveDATA&&PreCut&&"int(eventN)%2==0"&&SBCut; // for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
   TCut RMNone="";
   for (unsigned int i=0;i<=features.size()-1;i++) {
    RemoveNone.push_back(TCut(Form("!TMath::IsNaN(%s)",features[i].c_str())));
@@ -345,11 +299,8 @@ mycutb0 	 = Cut_bkg_mass &&  "(mumuMass < 2.702)";
    if(i>0)  RMNone=RMNone&&RemoveNone[i];
   }
   TCut mycutNEve="int(eventN)<2000000";
-//   TCut mycuts=mycuts0&&RMNone&&mycutNEve;
-//   TCut mycutb=mycutb0&&RMNone&&mycutNEve;
   mycuts=mycuts0&&RMNone;
   mycutb=mycutb0&&RMNone;
-//  TCut mycutb=mycutb0&&RMNone&&"!TMath::IsNaN(DRweight)";
   TTree *TreeData_Cut = TreeData->CopyTree(mycutb);
   TTree *TreeMC_Cut   = TreeMC  ->CopyTree(mycuts);
   int nentriesData_Cut= TreeData_Cut->GetEntries();
@@ -358,106 +309,53 @@ mycutb0 	 = Cut_bkg_mass &&  "(mumuMass < 2.702)";
   std::cout<<Form("Found data entries after Cuts = %d",nentriesData_Cut)<<std::endl;
   std::cout<<Form("Cuts [MC]   = %s \n", mycuts.GetTitle ())<<std::endl;
   std::cout<<Form("Cuts [Data] = %s \n", mycutb.GetTitle ())<<std::endl;
-//   loader->AddTree( TreeMC    ,"Signal"	  , signalWeight    , mycuts );
-//   loader->AddTree( TreeData  ,"Background",backgroundWeight , mycutb );
   loader->AddTree( TreeMC_Cut    ,"Signal"	  , signalWeight    );
   loader->AddTree( TreeData_Cut  ,"Background",backgroundWeight );
-//  loader->AddTree( TreeData,"Signal"	, signalWeight , mycuts   );
-//  loader->AddTree( TreeMC, "Background",backgroundWeight ,mycutb );
   for (unsigned int i=0;i<=features.size()-1;i++) {
    loader->AddVariable( features[i].c_str(), 'F' );
   }
-//  TreeMC_Cut->Print(mycuts);
-//  exit(1);
-//   for (unsigned int i=0;i<=spectatorF.size()-1;i++) {
-//    loader->AddSpectator( spectatorF[i].c_str(), 'F' );
-//   }
-//   for (unsigned int i=0;i<=spectatorI.size()-1;i++) {
-//    loader->AddSpectator( spectatorI[i].c_str(), 'I' );
-//  }
-//   
-//   loader->AddVariable( "kstTrk1Pt", 'D' );
-//   loader->AddVariable( "kstTrk2Pt", 'D' );
-//   loader->AddVariable( "kstTrk1Eta", 'D' );
-//   loader->AddVariable( "kstTrk2Eta", 'D' );
-  
-//   loader->AddVariable( "kstTrk1Pt", 'F' );
-//   loader->AddVariable( "kstTrk2Pt", 'F' );
-//   loader->AddVariable( "kstTrk1Eta", 'F' );
-//   loader->AddVariable( "kstTrk2Eta", 'F' );
-//   loader->AddSpectator( "truthMatchMum",  'F' );
-//   loader->AddSpectator( "truthMatchMup",  'F' );
-////////////  loader->SetSignalWeightExpression("weight");
-////////////   loader->SetBackgroundWeightExpression(backgroundWeight);
-//  loader->AddVariable( "nsig_sw", 'D' );
-// Apply additional cuts on the signal and background samples (can be different)
-// Tell the factory how to use the training and testing events
-//
-// If no numbers of events are given, half of the events in the tree are used 
-// for training, and the other half for testing:
-//    loader->PrepareTrainingAndTestTree( mycut, "SplitMode=random:!V" );
-// To also specify the number of testing events, use:
-//    loader->PrepareTrainingAndTestTree( mycut,
-//                                         "NSigTrain=3000:NBkgTrain=3000:NSigTest=3000:NBkgTest=3000:SplitMode=Random:!V" );
-//   loader->PrepareTrainingAndTestTree( "", "",
-//   loader->PrepareTrainingAndTestTree( mycuts, mycutb,
-//                                  "nTrain_Signal=5000:nTrain_Background=5000:SplitMode=Random:NormMode=NumEvents:!V" );
-//                                    "nTrain_Signal=500000:nTrain_Background=500000:SplitMode=Random:NormMode=NumEvents:!V" );
-//                                      "SplitMode=Random:NormMode=NumEvents:!V" );
    std::cout<<"==== PrepareTrainingAndTestTree ===="<<std::endl;
-//   loader->PrepareTrainingAndTestTree( "","",
    loader->PrepareTrainingAndTestTree( "", "",
-//   loader->PrepareTrainingAndTestTree( mycuts, mycutb,
-//                                  "nTrain_Signal=5000:nTrain_Background=5000:SplitMode=Random:NormMode=NumEvents:!V" );
-//                                    "nTrain_Signal=5000:nTrain_Background=5000:SplitMode=Random:NormMode=NumEvents:!V" );
                                       "SplitMode=Random:NormMode=NumEvents:V" );
 ////                                      "SplitMode=Random:NormMode=EqualNumEvents:V" );
 //Boosted Decision Trees
    BookTXT =\
-/* //Form("H:V:NTrees=%d:BoostType=Grad:Shrinkage=0.10:UseBaggedBoost:BaggedSampleFraction=0.50:nCuts=20:MaxDepth=2:DoBoostMonitor:CreateMVAPdfs:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=100:NsmoothMVAPdf=10",BDTNumTree);
-// Form("V:ErrorStrategy=CROSSENTROPY:VarTransform=N:WeightInitialization=XAVIERUNIFORM:Layout=TANH|128,TANH|128,TANH|128,LINEAR:TrainingStrategy=LearningRate=1e-2,Momentum=0.9,\
-//                                         ConvergenceSteps=20,BatchSize=100,TestRepetitions=1,\
-//                                         WeightDecay=1e-4,Regularization=None,\
-//                                         DropConfig=0.0+0.5+0.5+0.5:nTrain_Signal=10000:nTrain_Background=10000:nTest_Signal=6000:nTest_Background=6000:Architecture=CPU:CreateMVAPdfs:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=100:NsmoothMVAPdf=10");
- */Form("V:ErrorStrategy=CROSSENTROPY:VarTransform=N:WeightInitialization=XAVIERUNIFORM:Layout=TANH|128,TANH|128,TANH|128,LINEAR:TrainingStrategy=LearningRate=1e-2,Momentum=0.9,\
+    Form("V:ErrorStrategy=CROSSENTROPY:VarTransform=N:WeightInitialization=XAVIERUNIFORM:Layout=TANH|128,TANH|128,TANH|128,LINEAR:TrainingStrategy=LearningRate=1e-2,Momentum=0.9,\
                                         ConvergenceSteps=20,BatchSize=128,TestRepetitions=1,\
                                         WeightDecay=1e-4,Regularization=None,\
                                         DropConfig=0.0+0.0+0.0+0.0:Architecture=CPU");
 
-      TString inputLayoutString = "InputLayout=0|0|0"; 
-      TString batchLayoutString= "BatchLayout=0|0|0";
-      TString layoutString ("Layout=DENSE|64|TANH,BNORM|0.99|0.0001,DENSE|64|TANH,BNORM|0.99|0.0001,DENSE|64|TANH,BNORM|0.99|0.0001,DENSE|64|TANH,DENSE,BNORM|0.99|0.0001,DENSE|1|LINEAR");
-      // Define Training strategies 
-      // one can catenate several training strategies 
-      TString training1("LearningRate=1e-6,Momentum=0.9,Repetitions=1,"
-                        "ConvergenceSteps=30,BatchSize=128,TestRepetitions=1,"
-                        "MaxEpochs=100,WeightDecay=1e-4,Regularization=None,"
-                        "Optimizer=ADAM,DropConfig=0.0+0.0+0.0+0.:ValidationSize=0.50");
-      //     TString training2("LearningRate=1e-3,Momentum=0.9,Repetitions=1,"
-      //                       "ConvergenceSteps=10,BatchSize=128,TestRepetitions=1,"
-      //                       "MaxEpochs=20,WeightDecay=1e-4,Regularization=None,"
-      //                       "Optimizer=SGD,DropConfig=0.0+0.0+0.0+0.");
-  
-      TString trainingStrategyString ("TrainingStrategy=");
-      trainingStrategyString += training1; // + "|" + training2;
-
-      // General Options.
-
-      TString dnnOptions ("H:V:ErrorStrategy=CROSSENTROPY:VarTransform=G:"
-                          "WeightInitialization=XAVIER");
-      dnnOptions.Append (":"); dnnOptions.Append (inputLayoutString);
-      dnnOptions.Append (":"); dnnOptions.Append (batchLayoutString);
-      dnnOptions.Append (":"); dnnOptions.Append (layoutString);
-      dnnOptions.Append (":"); dnnOptions.Append (trainingStrategyString);
-      dnnOptions += ":Architecture=CPU:CreateMVAPdfs:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=50:NsmoothMVAPdf=10";
-//      dnnOptions += ":Architecture=GPU:CreateMVAPdfs:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=50:NsmoothMVAPdf=10";
+//       TString inputLayoutString = "InputLayout=0|0|0"; 
+//       TString batchLayoutString= "BatchLayout=0|0|0";
+//       TString layoutString ("Layout=DENSE|64|TANH,BNORM|0.99|0.0001,DENSE|64|TANH,BNORM|0.99|0.0001,DENSE|64|TANH,BNORM|0.99|0.0001,DENSE|64|TANH,DENSE,BNORM|0.99|0.0001,DENSE|1|LINEAR");
+//       // Define Training strategies 
+//       // one can catenate several training strategies 
+//       TString training1("LearningRate=1e-6,Momentum=0.9,Repetitions=1,"
+//                         "ConvergenceSteps=30,BatchSize=128,TestRepetitions=1,"
+//                         "MaxEpochs=100,WeightDecay=1e-4,Regularization=None,"
+//                         "Optimizer=ADAM,DropConfig=0.0+0.0+0.0+0.:ValidationSize=0.50");
+//       //     TString training2("LearningRate=1e-3,Momentum=0.9,Repetitions=1,"
+//       //                       "ConvergenceSteps=10,BatchSize=128,TestRepetitions=1,"
+//       //                       "MaxEpochs=20,WeightDecay=1e-4,Regularization=None,"
+//       //                       "Optimizer=SGD,DropConfig=0.0+0.0+0.0+0.");
+//   
+//       TString trainingStrategyString ("TrainingStrategy=");
+//       trainingStrategyString += training1; // + "|" + training2;
+// 
+//       // General Options.
+// 
+//       TString dnnOptions ("H:V:ErrorStrategy=CROSSENTROPY:VarTransform=G:"
+//                           "WeightInitialization=XAVIER");
+//       dnnOptions.Append (":"); dnnOptions.Append (inputLayoutString);
+//       dnnOptions.Append (":"); dnnOptions.Append (batchLayoutString);
+//       dnnOptions.Append (":"); dnnOptions.Append (layoutString);
+//       dnnOptions.Append (":"); dnnOptions.Append (trainingStrategyString);
+//       dnnOptions += ":Architecture=CPU:CreateMVAPdfs:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=50:NsmoothMVAPdf=10";
+// //      dnnOptions += ":Architecture=GPU:CreateMVAPdfs:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=50:NsmoothMVAPdf=10";
 
    std::cout<<dnnOptions<<std::endl;
    std::cout<<"==== BookMethod ===="<<std::endl;
    factory->BookMethod( loader,  TMVA::Types::kDL, "DNN_CPU",BookTXT.c_str() );
-//   factory->BookMethod( loader,  TMVA::Types::kDNN, "DNN_CPU",BookTXT.c_str() );
-//   factory->BookMethod( loader,  TMVA::Types::kDNN, "DNN",dnnOptions);
-//   factory->BookMethod( loader,  TMVA::Types::kDNN, "DNN_CPU",BookTXT.c_str() );
 
 
 
@@ -475,21 +373,19 @@ mycutb0 	 = Cut_bkg_mass &&  "(mumuMass < 2.702)";
 //    c1->Print("c1-tmva-test-allYears-2016.pdf");
    std::cout<<"==== Close Output file ===="<<std::endl;
    outputFile->Close();   
-//   TCanvas *TRoc = factory->GetROCCurve (loader);
    TRoc->Print(Form("%s/roc-tmva-test-allYears-%s.pdf",datasetYear.c_str(),year.c_str()));
- } 
+} 
 //
 //=================================================================================================================================================================
 //   
- void tmva_evaluate_dnn(bool save){
+// Here Evaluate DNN score x event
+void tmva_evaluate_dnn(bool save){
  
    TFile *foutData = 0;
    TFile *foutMC   = 0;
    TFile *pout	   = 0;
    TTree *toutMC   = 0;
    TTree *toutData = 0;
-//   TBranch* bDataScore=0;
-//   TBranch* bMCScore=0;
    if(save) {
     std::cout<<"Save the weights!!!"<<std::endl;
     std::cout<<"The parity is not set!!!"<<std::endl;
@@ -511,7 +407,6 @@ mycutb0 	 = Cut_bkg_mass &&  "(mumuMass < 2.702)";
 
    TH1D* HxDNNData   	 = new TH1D( "HxDNNData"	, Form("DNN Output Data %s",year.c_str()) ,100, 0., 1.0);
    TH1D* HxDNNMC   	 = new TH1D( "HxDNNMC"		, Form("DNN Output MC %s",year.c_str()) ,100, 0., 1.0);
-//   TH1D* HxDNNMCW   	 = new TH1D( "HxDNNMCW"		, Form("Bdt Output MC %s reweighted",year.c_str()) ,100, 0., 1.0);
    std::vector<double> VarD;			     
    std::vector<float> VarF;
 
@@ -527,6 +422,8 @@ mycutb0 	 = Cut_bkg_mass &&  "(mumuMass < 2.702)";
      mapFeat.insert(make_pair(i,temap));
      
    }
+
+// DNN reader init   
    TMVA::Reader *reader = new TMVA::Reader( "!Color:!Silent" );
    
    int count=0;
@@ -556,12 +453,6 @@ mycutb0 	 = Cut_bkg_mass &&  "(mumuMass < 2.702)";
 //    std::cout <<"mappa->"<< (*imap).first<<" = "<<(*imap).second << std::endl;
    }
   
-//    for (unsigned int i=0;i<=features.size()-1;i++) { 
-//     VarD.push_back(0);
-//     VarF.push_back(0);
-//     variables.push_back(features[i]);
-//     cstudies.push_back(new TCanvas(Form("c_%s",features[i].c_str()),Form("MC %s DNN studies %s (DNN feature)",features[i].c_str(),year.c_str()),200,10,900,780));
-//    }
    for (unsigned int i=0;i<=vartested.size()-1;i++) { 
     VarD.push_back(0);
     variables.push_back(vartested[i]);
@@ -573,7 +464,6 @@ mycutb0 	 = Cut_bkg_mass &&  "(mumuMass < 2.702)";
 //    cstudies.push_back(new TCanvas(Form("c_%s",features[i].c_str()),Form("MC %s reweighting studies %s",features[i].c_str(),year.c_str()),200,10,900,780));
    }
 
-//   TString weightfile = dir + prefix  + TString(".weights.xml");
    FILE *file = fopen(dirfilexml.c_str(), "r");
    if (file){
     std::cout<<"Reading DNN file "<<dirfilexml.c_str()<<std::endl;
@@ -585,25 +475,15 @@ mycutb0 	 = Cut_bkg_mass &&  "(mumuMass < 2.702)";
   std::cout<<Form("Size VarD %d sould be equal to %d",int(VarD.size()),int(variables.size()))<<std::endl;
   std::cout<<Form("Size VarF %d should be equal to Size Features %d ",int(VarF.size()),int(features.size()))<<std::endl;
 
-//=============== Model TTree ================== 
-
-//   TFile *fModel = new TFile(NameFileModel.c_str(),"READ");
-//   TTree *TreeModel     = (TTree*)fModel->Get("ntuple_DRw");
-//   std::cout<<Form("Open Model File :%s \n",NameFileModel.c_str())<<std::endl;
-//   int nentriesModel = (int)TreeModel->GetEntries();
-//   std::cout<<Form("Found Model entries= = %d",nentriesModel)<<std::endl;
-//   TreeModel->SetBranchAddress("DRweight"     ,&DRweight );
-
-//=============== MC TTree ================== 
+//
+//=============== Read  MC TTree ================== 
+//
    TFile *fMC   = new TFile(NameFileMCp1.c_str(),"READ");
    std::cout<<Form("Opening MC File :%s \n",NameFileMCp1.c_str())<<std::endl;
    TTree *TreeMC     = (TTree*)fMC->Get("ntuple");
-//   if (save) bMCScore = TreeMC->Branch("ScoreDNN", &ScoreDNN,"ScoreDNN/D");
-   
    
 
    for (unsigned int i=0;i<=variables.size()-1;i++) { 
-//   for (unsigned int i=0;i<=features.size()-1;i++) { 
      TreeMC->SetBranchAddress(variables[i].c_str()     ,&VarD[i] );
      float hMin = TreeMC->GetMinimum(variables[i].c_str());
      float hMax = TreeMC->GetMaximum(variables[i].c_str());
@@ -661,12 +541,11 @@ mycutb0 	 = Cut_bkg_mass &&  "(mumuMass < 2.702)";
      HistData.push_back(new TH1D(  Form("Hx%s_Data" ,variables[i].c_str()), Form("%s Data %s %s"	 ,variables[i].c_str(),year.c_str(),isFeature.c_str()),100,hMin,hMax));
      HistMC.push_back(  new TH1D(  Form("Hx%s_MC"   ,variables[i].c_str()), Form("%s MC %s %s" 	         ,variables[i].c_str(),year.c_str(),isFeature.c_str()),100,hMin,hMax));
      HistMC_Cut.push_back(  new TH1D(  Form("Hx%s_MC_Cut"   ,variables[i].c_str()), Form("%s MC %s %s" 	         ,variables[i].c_str(),year.c_str(),isFeature.c_str()),100,hMin,hMax));
-//     HistMCW.push_back( new TH1D(  Form("Hx%s_MCW"  ,variables[i].c_str()), Form("%s MC %s Reweighted %s",variables[i].c_str(),year.c_str(),isFeature.c_str()),100,hMin,hMax));
    }
 //   fMC->cd();
    TreeMC->SetBranchAddress("eventN"	            ,&eventN );
-//   TreeMC->SetBranchAddress("pass_preselection"     ,&pass_preselection );
-//   TreeMC->SetBranchAddress("tagged_mass"	    ,&tagged_mass );
+   TreeMC->SetBranchAddress("pass_preselection"     ,&pass_preselection );
+//   TreeMC->SetBranchAddress("tagged_mass"	  ,&tagged_mass );
    TreeMC->SetBranchAddress("tagB0"  	            ,&tagB0 );
    TreeMC->SetBranchAddress("genSignal"  	    ,&genSignal );
    TreeMC->SetBranchAddress("mumuMass"  	    ,&mumuMass );
@@ -679,24 +558,12 @@ mycutb0 	 = Cut_bkg_mass &&  "(mumuMass < 2.702)";
    TreeMC->SetBranchAddress("weight"	            ,&weight );
    if(save) TreeMC->AddFriend(toutMC);
 
-//   TreeMC->SetBranchAddress("xcut"	            ,&xcut );
-//   TreeMC->SetBranchAddress("passB0Psi_jpsi"	    ,&passB0Psi_jpsi );
-// add friend
-//   TreeMC->AddFriend(TreeModel);
-// add friend
-//   float val_mva_B=0;
-//   int shift = variables.size()-features.size();
 
    Long64_t nentriesMC = (Long64_t)TreeMC->GetEntries(); 
    std::cout<<Form("Found MC entries= = %lld",nentriesMC)<<std::endl;
    Long64_t MaxEveMC = (Long64_t)std::min(CutEve,(Long64_t)nentriesMC);
    std::cout<<Form("Reading num. MC entries= = %lld",MaxEveMC)<<std::endl;
-//   for (Long64_t i=0;i<10000;i++) {
    for (Long64_t i=0;i<nentriesMC;i++) {
-//   for (Long64_t i=0;i<nentriesMC;i++) {
-//    for (Long64_t i=0;i<10000;i++) {
-//     for (Long64_t i=0;i<MaxEveMC;i++) {
-//     for (Long64_t i=0;i<nentriesMC;i++) {
        ScoreDNN = -1.;
        TreeMC->GetEntry(i);
        if ( i%100000==0 ) {
@@ -743,18 +610,17 @@ mycutb0 	 = Cut_bkg_mass &&  "(mumuMass < 2.702)";
   	 }
  	} 
        if(save) toutMC->Fill();
-//       if(save) bMCScore->Fill();
      } 
      if(save){
       std::cout<<Form("Saving the MC   result in %s",foutMC->GetName())<<std::endl;
       foutMC->cd();
       toutMC->Write();
-//      TreeMC->Write("", TObject::kOverwrite);
       foutMC->Close();
       delete foutMC;
      } 
-
- // //=============== Data TTree ================== 
+//
+//=============== Read Data TTree ================== 
+//
     TFile *fData   = new TFile(NameFileDatap1.c_str(),"READ");
     std::cout<<Form("Opening Data File :%s \n",NameFileDatap1.c_str())<<std::endl;
     fData->cd();
@@ -764,23 +630,18 @@ mycutb0 	 = Cut_bkg_mass &&  "(mumuMass < 2.702)";
     for (unsigned int i=0;i<=variables.size()-1;i++) { 
      TreeData->SetBranchAddress(variables[i].c_str()     ,&VarD[i] );
     }
-//    TreeData->SetBranchAddress("pass_preselection" ,&pass_preselection );
+    TreeData->SetBranchAddress("pass_preselection" ,&pass_preselection );
 //    TreeData->SetBranchAddress("tagged_mass"	   ,&tagged_mass );
-//    TreeData->SetBranchAddress("nsig_sw"	   ,&nsig_sw );
     TreeData->SetBranchAddress("mumuMass"	   ,&mumuMass );
     TreeData->SetBranchAddress("mumuMassE"	   ,&mumuMassE );
     TreeData->SetBranchAddress("eventN"	           ,&eventN );   
     if(save) TreeData->AddFriend(toutData);
 
-//    TreeData->SetBranchAddress("xcut"	           ,&xcut );
-//    TreeData->SetBranchAddress("passB0Psi_jpsi"	   ,&passB0Psi_jpsi );
     Long64_t nentriesData = (Long64_t)TreeData->GetEntries();
     std::cout<<Form("Found Data entries= = %d",(int)nentriesData)<<std::endl;
     Long64_t MaxEveData = (Long64_t)std::min(CutEve,nentriesData);
     std::cout<<Form("Reading num. Data entries= = %lld",MaxEveData)<<std::endl;
     for (Long64_t i=0;i<nentriesData;i++) {
-//    for (Long64_t i=0;i<MaxEveData;i++) {
-//    for (Long64_t i=0;i<10000;i++) {
            ScoreDNN = -1.;
     	   TreeData->GetEntry(i);
  	   if ( i%100000==0 ) {
@@ -788,10 +649,6 @@ mycutb0 	 = Cut_bkg_mass &&  "(mumuMass < 2.702)";
  	    }
             if(!save){
 	     if(mumuMass > 2.702) continue;
-//	     if( eventN%2==0 ) continue; // parity!!!!!!!!!!!!!!!!!!!!!!111
-//   	     if(tagged_mass < 5.0 || tagged_mass > 5.6) continue;
-//   	     if(mumuMass*mumuMass>8.68  && mumuMass*mumuMass < 10.09) continue;
-//   	     if(mumuMass*mumuMass>12.86 && mumuMass*mumuMass < 14.18) continue;
 	    }
 	    bool skip = false;
 	    int Indx =0;
