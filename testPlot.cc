@@ -54,7 +54,7 @@ int main (int argc, char** argv) {
 
 void testPlot(int ncut) {
    float xxstart=0.96;
-   TFile *FileInput = new TFile("~fgiovenzana/Tesi/new_bins_tmva2-dnn/test-2018DATA_LMNR-Plots.root","READ");
+   TFile *FileInput = new TFile("test-2018DATA_LMNR-Plots.root","READ");
    std::vector<TH1D*> HistData_Cut;
    std::vector<TH1D*> HistMC_Cut;
    std::vector<double> cutDNN;		     
