@@ -57,7 +57,7 @@ signifPlot();
 void signifPlot() {
 
 // reading file 1: 20 pts from 0.9
-std::ifstream in_file_1 ("TestPlot_ddf90_results/ratio_results.txt");
+std::ifstream in_file_1 ("ratio_results.txt");
 std::vector<double> v_col1;
 std::vector<double> v_col2;
 	
