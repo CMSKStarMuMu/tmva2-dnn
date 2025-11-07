@@ -268,7 +268,7 @@ int main (int argc, char** argv) {
    TFile *pout	   = 0;
    TTree *toutMC   = 0;
    TTree *toutData = 0;
-   foutMC = new TFile(Form("../%sMC_LMNR-ScoreDNN.root.ok",year.c_str()),"READ");
+   foutMC = new TFile(Form("../%sMC_LMNR-ScoreDNN.root",year.c_str()),"READ");
    std::cout<<Form("Opening MC Score DNN File :%s \n",foutMC->GetName())<<std::endl;
    toutMC     = (TTree*)foutMC->Get("sDNN");
    if(toutMC==0) {
@@ -277,7 +277,7 @@ int main (int argc, char** argv) {
    } 
    toutMC->SetBranchAddress("eventN", &eventN);
    toutMC->SetBranchAddress("ScoreDNN", &ScoreDNN);
-   foutData = new TFile(Form("../%sData_LMNR-ScoreDNN.root.ok",year.c_str()),"READ");
+   foutData = new TFile(Form("../%sData_LMNR-ScoreDNN.root",year.c_str()),"READ");
    std::cout<<Form("Opening Data Score DNN File :%s \n",foutData->GetName())<<std::endl;
    toutData     = (TTree*)foutData->Get("sDNN");
    if(toutData==0) {
