@@ -12,13 +12,21 @@ CXXFLAGS := $(DEBUGFLAGS)
 
 #exe_files
 EXECUTABLE         := tmva-test-allYears
+EXECUTABLE1        := test-allYears
+EXECUTABLE2        := testPlot
 
-all:  $(EXECUTABLE)
+all:  $(EXECUTABLE) $(EXECUTABLE1) $(EXECUTABLE2)
 
 $(EXECUTABLE): $(EXECUTABLE).cc 
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS) $(ROOTLIBS) $(ROOTFLAGS) -I.
+
+$(EXECUTABLE1): $(EXECUTABLE1).cc 
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS) $(ROOTLIBS) $(ROOTFLAGS) -I.
+
+$(EXECUTABLE2): $(EXECUTABLE2).cc 
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS) $(ROOTLIBS) $(ROOTFLAGS) -I.
 
 #cleaning options
 .PHONY: clean cleanall
 clean:
-	rm -f $(OBJECTS) && rm -f $(EXECUTABLE)
+	rm -f $(OBJECTS) && rm -f $(EXECUTABLE) $(EXECUTABLE1) $(EXECUTABLE2)
