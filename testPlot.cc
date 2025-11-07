@@ -46,14 +46,14 @@
 #include <RooCrystalBall.h>
 #include <RooExponential.h>
 #include <RooExtendPdf.h>
-void testPlot(int ncut=20);
+void testPlot(int ncut=9);
 using namespace RooFit;
 int main (int argc, char** argv) {
  testPlot();
 }
 
 void testPlot(int ncut) {
-   float xxstart=0.96;
+   float xxstart=0.90;
    TFile *FileInput = new TFile("test-2018DATA_LMNR-Plots.root","READ");
    std::vector<TH1D*> HistData_Cut;
    std::vector<TH1D*> HistMC_Cut;
