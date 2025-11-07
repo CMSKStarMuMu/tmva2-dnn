@@ -193,7 +193,7 @@ int main (int argc, char** argv) {
   if( argc<=1 ){
     std::cout<<Form("Usage: %s [year=2016,2017,2018] {dnn}",argv[0])<<std::endl;
     std::cout<<Form("Please, set the year (at least)")<<std::endl;
-    std::cout<<Form("example: %s 2016 bdt; if you want to train a new dnn & plots\n",argv[0])<<std::endl;
+    std::cout<<Form("example: %s 2016 dnn; if you want to train a new dnn & plots\n",argv[0])<<std::endl;
     std::cout<<Form("         %s 2016	 ; if you want just produce the  plots\n",argv[0])<<std::endl;
     exit(0);
   }else{
@@ -223,11 +223,14 @@ int main (int argc, char** argv) {
     std::cout<<Form("Start training the DNN \n")<<std::endl;
     tmva_test_dnn();
     tmva_evaluate_dnn(false);
-   }
-   if ((strcmp(argv[2],"save") == 0)){
+   }else if ((strcmp(argv[2],"save") == 0)){
     std::cout<<Form("Save weights \n")<<std::endl;
     tmva_evaluate_dnn(true);
+   }else{
+    std::cout<<Form("Option not found! Exit... \n")<<std::endl;
+    exit(0);
    }
+   
   }else{
     tmva_evaluate_dnn(false);
   }
