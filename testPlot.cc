@@ -46,6 +46,7 @@
 #include <RooCrystalBall.h>
 #include <RooExponential.h>
 #include <RooExtendPdf.h>
+#include <RooFitResult.h>
 void testPlot(int ncut=9);
 using namespace RooFit;
 int main (int argc, char** argv) {
@@ -134,7 +135,7 @@ std::vector<double> signifDNN;
 
 // scaling vars
 double scale18 = (14.741 + 7.149 + 6.899 + 32.347)/12321/1.30; 
-double rescale = 1./sqrt(11); //1/sqrt(11) is due to the n° of subsamples
+double rescale = 1./sqrt(11); //1/sqrt(11) is due to the nÂ° of subsamples
 
 std::ofstream ratio_rslts; //file with s/sqrt(s+b) from various cuts
 ratio_rslts.open("TestPlot_results/ratio_results.txt");
