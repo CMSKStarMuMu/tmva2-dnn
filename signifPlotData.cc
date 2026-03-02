@@ -62,43 +62,42 @@ signifPlot(ncut);
 
 void signifPlot(int ncut) {
 
-
-std::ifstream in_file_1 (Form("TestPlot_results_%i/ratio_results_%i.txt", ncut, ncut));
+// reading file 1: 20 pts from 0.9
+std::ifstream in_file_1 (Form("DATA_TestPlot_results_%i/ratio_results_%i.txt", ncut, ncut));
 
 if(in_file_1.is_open()) {
-	std::cout<<(Form("File found: TestPlot_results_%i/ratio_results_%i.txt", ncut, ncut))<<std::endl;
+	std::cout<<(Form("File found: DATA_TestPlot_results_%i/ratio_results_%i.txt", ncut, ncut))<<std::endl;
 }else{
-	std::cout<<(Form("File NOT found: TestPlot_results_%i/ratio_results_%i.txt", ncut, ncut))<<std::endl;
+	std::cout<<(Form("File NOT found: DATA_TestPlot_results_%i/ratio_results_%i.txt", ncut, ncut))<<std::endl;
 	exit(0);
 }
 
-// reading file 1: 20 pts from 0.9
-
 std::vector<double> v_col1;
 std::vector<double> v_col2;
-//std::vector<double> v_col3;
-//std::vector<double> v_col4;
+std::vector<double> v_col3;
+std::vector<double> v_col4;
 	
 double input1_col1 = 0.;
 double input1_col2 = 0.;
-//double input1_col3 = 0.;
-//double input1_col4 = 0.;
+double input1_col3 = 0.;
+double input1_col4 = 0.;
 	
 while (true) {
 	if (in_file_1.eof() == true) break;
 	//std::cout << "file1" << std::endl;
 	in_file_1 >> input1_col1;
 	in_file_1 >> input1_col2;
-	//in_file_1 >> input1_col3;
-	//in_file_1 >> input1_col4;
+	in_file_1 >> input1_col3;
+	in_file_1 >> input1_col4;
 	v_col1.push_back (input1_col1);
 	v_col2.push_back (input1_col2);
-	//v_col3.push_back (input1_col3);
-	///v_col4.push_back (input1_col4);
-	//std::cout<<input1_col1<<" "<< input1_col2<<" "<<input1_col3<<" "<<input1_col4<<std::endl; 
-//	std::cout<<input1_col1<<" "<< input1_col2<<std::endl; 
+	v_col3.push_back (input1_col3);
+	v_col4.push_back (input1_col4);
+//	std::cout<<input1_col1<<" "<< input1_col2<<" "<<input1_col3<<" "<<input1_col4<<std::endl; 
 	
 }
+
+//std::cout<<"check one"<<std::endl; 
 
 in_file_1.close();
 
@@ -119,12 +118,11 @@ in_file_1.close();
 // }
 // 
 // in_file_2.close();
-
+// 
 // plotting the significance
-
 TCanvas cSign;
-//TGraphErrors cuts_signif (v_col1.size(), &v_col1[0], &v_col2[0], &v_col3[0], &v_col4[0]);
-TGraph cuts_signif (v_col1.size(), &v_col1[0], &v_col2[0]);
+TGraphErrors cuts_signif (v_col1.size(), &v_col1[0], &v_col2[0], &v_col3[0], &v_col4[0]);
+//TGraphErrors cuts_signif (v_col1.size(), &v_col1[0], &v_col2[0]);
 
 cuts_signif.SetMarkerStyle(20);
 cuts_signif.SetMarkerColor(kBlue);
@@ -139,6 +137,6 @@ std::cout << Form("Sign = %f WP= %f, Cut= %d",v_col1[imax],max,imax)<<std::endl;
 cuts_signif.Draw("AP");
 cSign.SetGrid(1, 10);
 cSign.Update();
-cSign.Print("WorkPointStudy_CombCuts.pdf");
+cSign.Print("DATA_WorkPointStudy_CombCuts.pdf");
 
 }

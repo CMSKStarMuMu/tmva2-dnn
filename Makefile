@@ -12,21 +12,34 @@ CXXFLAGS := $(DEBUGFLAGS)
 
 #exe_files
 EXECUTABLE         := tmva-test-allYears
-EXECUTABLE1        := test-allYears
-EXECUTABLE2        := testPlot
+EXECUTABLE2        := testPlotData
+EXECUTABLE3        := signifPlot
+EXECUTABLE4        := signifPlotData
 
-all:  $(EXECUTABLE) $(EXECUTABLE1) $(EXECUTABLE2)
+
+
+#all:  $(EXECUTABLE) $(EXECUTABLE1) $(EXECUTABLE2)
+all:  $(EXECUTABLE) $(EXECUTABLE2) $(EXECUTABLE3) $(EXECUTABLE4) 
 
 $(EXECUTABLE): $(EXECUTABLE).cc 
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS) $(ROOTLIBS) $(ROOTFLAGS) -I.
 
-$(EXECUTABLE1): $(EXECUTABLE1).cc 
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS) $(ROOTLIBS) $(ROOTFLAGS) -I.
+#$(EXECUTABLE1): $(EXECUTABLE1).cc 
+#	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS) $(ROOTLIBS) $(ROOTFLAGS) -I.
 
 $(EXECUTABLE2): $(EXECUTABLE2).cc 
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS) $(ROOTLIBS) $(ROOTFLAGS) -I.
+	
+$(EXECUTABLE3): $(EXECUTABLE3).cc 
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS) $(ROOTLIBS) $(ROOTFLAGS) -I.
+
+$(EXECUTABLE4): $(EXECUTABLE4).cc 
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS) $(ROOTLIBS) $(ROOTFLAGS) -I.
+		
 
 #cleaning options
 .PHONY: clean cleanall
+#clean:
+#	rm -f $(OBJECTS) && rm -f $(EXECUTABLE) $(EXECUTABLE1) $(EXECUTABLE2)
 clean:
-	rm -f $(OBJECTS) && rm -f $(EXECUTABLE) $(EXECUTABLE1) $(EXECUTABLE2)
+	rm -f $(OBJECTS) && rm -f $(EXECUTABLE) $(EXECUTABLE2) $(EXECUTABLE3) $(EXECUTABLE4) 
