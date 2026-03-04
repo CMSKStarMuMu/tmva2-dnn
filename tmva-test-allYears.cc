@@ -132,13 +132,13 @@ std::string isFeature="";
 std::string year=""; 
 std::string year_default="2024";
 std::string NameFileMCp0 = \
-"/gwdata/users/dini/BPH/Run3/flatNtuple/ntuple_flat_2024MC_MC_alladd_vars.root";//modello
+"/gwdata/users/dini/BPH/Run3/flatNtuple/ntuple_flat_2024MC_MC_alladd_vars.root";// signal MC
 std::string NameFileMCp1 = \
-"/gwdata/users/dini/BPH/Run3/flatNtuple/ntuple_flat_2024MC_MC_alladd_vars.root";
+"/gwdata/users/dini/BPH/Run3/flatNtuple/ntuple_flat_2024MC_MC_alladd_vars.root";// signal MC
 std::string NameFileDatap0 = \
-"/gwdata/users/dini/BPH/Run3/flatNtuple/ntuple_flat_2024C012356_2024E0346_v2_data_alladd_vars.root";//modello
+"/gwdata/users/dini/BPH/Run3/flatNtuple/ntuple_flat_2024C012356_2024E0346_v2_data_alladd_vars.root";// data
 std::string NameFileDatap1 = \
-"/gwdata/users/dini/BPH/Run3/flatNtuple/ntuple_flat_2024C012356_2024E0346_v2_data_alladd_vars.root"; //più statistica
+"/gwdata/users/dini/BPH/Run3/flatNtuple/ntuple_flat_2024C012356_2024E0346_v2_data_alladd_vars.root"; // data 
 // std::string NameFileModel =  "/gwpool/users/dini/p5prime/DRweights/2016MC_JPSI_PDGinputs.root";
 std::string datasetYear;
 std::string dirfilexml;
