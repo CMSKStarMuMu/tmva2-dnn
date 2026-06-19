@@ -173,7 +173,7 @@ float xxstart=0.90;
 int main (int argc, char** argv) {
 
 
-  if( argc<=1 ){
+  if( argc<=1 || (argc==2 &&strcmp(argv[1],"--help") == 0)|| (argc==2 &&strcmp(argv[1],"-h") == 0 ){
     std::cout<<Form("Usage: %s [year=2016,2017,2018] {dnn}",argv[0])<<std::endl;
     std::cout<<Form("Please, set the year (at least)")<<std::endl;
     std::cout<<Form("example: %s 2016 dnn; if you want to train a new dnn & plots\n",argv[0])<<std::endl;
